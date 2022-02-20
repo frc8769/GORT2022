@@ -9,10 +9,10 @@ import frc.robot.lib.WCDDriver;
 
 public class Robot extends TorqueIterative {
   
-  private PWMVictorSPX frontLeft;  // Port 1
-  private PWMVictorSPX frontRight; // Port 2
-  private PWMVictorSPX backLeft;   // Port 3
-  private PWMVictorSPX backRight;  // Port 4
+  private PWMVictorSPX frontLeft;  // Port 2
+  private PWMVictorSPX frontRight; // Port 4
+  private PWMVictorSPX backLeft;   // Port 1
+  private PWMVictorSPX backRight;  // Port 3
   
   // Algorithm for converting joystick values to motor values
   private WCDDriver wcd;
@@ -27,20 +27,20 @@ public class Robot extends TorqueIterative {
     driver = new GenericController(0, .1);
     operator = new GenericController(1, .1);
 
-    frontLeft = new PWMVictorSPX(0);
-    frontRight = new PWMVictorSPX(1);
-    backLeft = new PWMVictorSPX(2);
+    frontLeft = new PWMVictorSPX(2);
+    frontRight = new PWMVictorSPX(4);
+    backLeft = new PWMVictorSPX(1);
     backRight = new PWMVictorSPX(3);
   }
 
   @Override
   public void teleopContinuous() {
-    wcd.update(driver.getLeftYAxis(), -driver.getRightXAxis());
+    wcd.update(driver.getLeftXAxis(), -driver.getRightYAxis());
 
     frontLeft.set(wcd.getLeft());
-    frontRight.set(wcd.getRight());
+    frontRight.set(-wcd.getRight());
     backLeft.set(wcd.getLeft());
-    backRight.set(wcd.getRight());
+    backRight.set(-wcd.getRight());
   }
 
   // Ignore the below methods
