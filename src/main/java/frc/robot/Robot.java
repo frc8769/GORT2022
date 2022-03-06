@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import frc.robot.lib.GenericController;
 import frc.robot.lib.TorqueIterative;
@@ -9,7 +11,6 @@ public class Robot extends TorqueIterative {
 
   private final double INTAKE_SPEED = 1;
   private final double MAG_SPEED = 1;
-  private final double LEFT_DECREASE = .6;
 
   private PWMVictorSPX frontLeft;  // Port 2
   private PWMVictorSPX frontRight; // Port 4
@@ -26,9 +27,44 @@ public class Robot extends TorqueIterative {
   private GenericController driver;
   private GenericController operator; 
 
+  private boolean hasAutoStarted = false;
+  private double start = 0;
+
+  @Override
+  public void alwaysContinuous() {
+    if (DriverStation.isAutonomousEnabled()) {
+      if (!hasAutoStarted) {
+        hasAutoStarted = true;
+        start = Timer.getFPGATimestamp();
+      }
+
+      double time = Timer.getFPGATimestamp() - start; 
+
+      // if (Timer.getFPGATimestamp() - start > 8)
+      //   if (Timer.getFPGATimestamp() - start > 11)
+      //     setSpeeds(0, 0);
+      //   else
+      //     setSpeeds(.2, .2);
+      // else 
+      //   setSpeeds(.0, .0);
+
+      if (time < 2)
+        setMag(1);
+      else if (time < 3) {
+        setSpeeds(-.6, -.6);
+        setMag(0);
+      }
+      else if (time < 8)
+        setSpeeds(.3, .3);
+      else if (time < 15)
+        setSpeeds(0, 0);
+
+    }
+  }
+
   @Override
   public void robotInit() {
-    wcd = new WCDDriver(.8, .6);
+    wcd = new WCDDriver(.8, 1);
 
     driver = new GenericController(0, .1);
     operator = new GenericController(1, .1);
@@ -42,14 +78,18 @@ public class Robot extends TorqueIterative {
     magLeft = new PWMVictorSPX(7);
   }
 
+  private void setSpeeds(double left, double right) {
+    frontLeft.set(left);
+    frontRight.set(-right);
+    backLeft.set(left);
+    backRight.set(-right);
+  }
+
   @Override
   public void teleopContinuous() {
     wcd.update(driver.getRightXAxis(), -driver.getLeftYAxis());
 
-    frontLeft.set(wcd.getLeft() * LEFT_DECREASE);
-    frontRight.set(-wcd.getRight());
-    backLeft.set(wcd.getLeft() * LEFT_DECREASE);
-    backRight.set(-wcd.getRight());
+    setSpeeds(wcd.getLeft(), wcd.getRight());
 
     // frontLeft.set(-driver.getLeftYAxis());
     // frontRight.set(driver.getRightYAxis());
@@ -69,6 +109,31 @@ public class Robot extends TorqueIterative {
   private void setMag(double speed) {
     magRight.set(speed);
     magLeft.set(speed);
+  }
+
+
+  @Override
+  public void autoInit() {
+    start = Timer.getFPGATimestamp();
+    System.out.println("Auto Init");
+  }
+
+  @Override
+  public void autoPeriodic() {
+    // if (Timer.getFPGATimestamp() - start > 1)
+    //   if (Timer.getFPGATimestamp() - start > 3)
+    //     setSpeeds(0, 0);
+    //   else
+    //     setSpeeds(.2, .2);
+    // else 
+    //   setSpeeds(.0, .0);
+    System.out.println("Auto Periodic");
+    if (Timer.getFPGATimestamp() - start > 5) {
+      //setSpeeds(.2, .2);
+    } if (Timer.getFPGATimestamp() - start > 2) {
+      setSpeeds(0, 0);
+    }
+
   }
 
   // Ignore the below methods
