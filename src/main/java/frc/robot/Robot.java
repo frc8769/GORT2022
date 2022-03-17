@@ -7,6 +7,9 @@ import frc.robot.lib.GenericController;
 import frc.robot.lib.TorqueIterative;
 import frc.robot.lib.WCDDriver;
 
+/**
+ * @author Jaden, Nigel
+ */
 public class Robot extends TorqueIterative {
 
   private final double INTAKE_SPEED = 1;
