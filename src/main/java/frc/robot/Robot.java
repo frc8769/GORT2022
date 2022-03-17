@@ -8,7 +8,7 @@ import frc.robot.lib.TorqueIterative;
 import frc.robot.lib.WCDDriver;
 
 /**
- * @author Jaden, Nigel
+ * @author Jaden, Nigel, Justus
  */
 public class Robot extends TorqueIterative {
 
