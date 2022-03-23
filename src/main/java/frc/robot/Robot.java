@@ -1,11 +1,16 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.lib.GenericController;
 import frc.robot.lib.TorqueIterative;
 import frc.robot.lib.WCDDriver;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 
 /**
  * @author Jaden, Nigel, Justus
@@ -14,6 +19,7 @@ public class Robot extends TorqueIterative {
 
   private final double INTAKE_SPEED = 1;
   private final double MAG_SPEED = 1;
+  private final double CLIMB_SPEED = .8;
 
   private PWMVictorSPX frontLeft;  // Port 2
   private PWMVictorSPX frontRight; // Port 4
@@ -22,6 +28,7 @@ public class Robot extends TorqueIterative {
   private PWMVictorSPX rotary; // Port 5
   private PWMVictorSPX magRight; // Port 6
   private PWMVictorSPX magLeft; // Port 7
+  private CANSparkMax climb;  // Port 8
 
   
   // Algorithm for converting joystick values to motor values
@@ -79,6 +86,7 @@ public class Robot extends TorqueIterative {
     rotary = new PWMVictorSPX(5);
     magRight = new PWMVictorSPX(6);
     magLeft = new PWMVictorSPX(7);
+    climb = new CANSparkMax(1, MotorType.kBrushless);
   }
 
   private void setSpeeds(double left, double right) {
@@ -100,14 +108,27 @@ public class Robot extends TorqueIterative {
     // backRight.set(driver.getRightYAxis());
 
 
-    if (operator.getRightTrigger()) rotary.set(INTAKE_SPEED); 
-    else if (operator.getLeftTrigger()) rotary.set(-INTAKE_SPEED); 
+    if (driver.getRightTrigger()) rotary.set(INTAKE_SPEED); 
+    else if (driver.getLeftTrigger()) rotary.set(-INTAKE_SPEED); 
     else rotary.set(0);
 
     if (operator.getRightTrigger()) setMag(MAG_SPEED); 
     else if (operator.getLeftTrigger()) setMag(-MAG_SPEED); 
     else setMag(0);
+
+    if(operator.getYButton()) setclimb(1);
+    else if (operator.getAButton()) setclimb(-1);
+    else setclimb(0);
+
+    SmartDashboard.putNumber("Right Speed", wcd.getRight());
+    SmartDashboard.putNumber("Left Speed", wcd.getLeft());
+
   }
+
+  private void setclimb(int i) {
+      climb.set(i * CLIMB_SPEED);  
+  }
+
 
   private void setMag(double speed) {
     magRight.set(speed);
